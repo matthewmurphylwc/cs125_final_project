@@ -41,14 +41,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Base function for doing translations.
+     * @param userInput Whatever the user types in.
+     * @param userNumber How many translations the user wants to iterate through (should be limited)
+     * @return The string, in English, after it has been translated through a series of languages.
+     */
     private String translate(String userInput, int userNumber) {
+        /*Not sure if 50 is the right number but we should have a cap on the number of translations
+        the user can iterate through in one attempt both so we don't burn our API key's limit and so
+        the app doesn't take years to respond to a request.
+        */
         if (userNumber > 50) {
             userNumber = 50;
         }
         return userInput + userNumber;
     }
 
+    /**
+     * Function that takes as input the user's input and the output of the translate function and
+     * determines how similar the input and output are, then rounds to 2 decimal places.
+     * @param userInput The input the user enters into the app.
+     * @param translateOutput The output of the translate function
+     * @return A string of the percentage match of the two inputs.
+     */
     private String percentCorrect(String userInput, String translateOutput) {
+        //Set up for calculating percent correct
         char[] userChars = userInput.toCharArray();
         char[] translatedChars = translateOutput.toCharArray();
         char[] fixedUser = new char [Math.max(userChars.length, translatedChars.length)];
@@ -66,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         int countCorrect = 0;
+        //Loop that actually compares the two character arrays.
         for (int i = 0; i < fixedUser.length; i++) {
             Log.d(TAG, "User " + fixedUser[i]);
             Log.d(TAG, "Translated " + fixedTranslated[i]);
@@ -73,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 countCorrect++;
             }
         }
+        //Computing the percent and making it look nice.
         double percentCorrect = (double)countCorrect / fixedUser.length * 100;
         DecimalFormat percent = new DecimalFormat("###.##");
         return percent.format(percentCorrect) + "% Match";
