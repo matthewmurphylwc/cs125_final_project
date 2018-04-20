@@ -23,8 +23,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(final View v) {
                 Log.d(TAG, "Open file button clicked");
                 EditText translateInput = (EditText)findViewById(R.id.Translate_Input);
+                EditText numberInput = (EditText)findViewById(R.id.Translation_Number);
+                String stringNumber = numberInput.getText().toString();
+                int translateNumber = Integer.parseInt(stringNumber);
                 TextView translateOutput = findViewById(R.id.Translate_Output);
-                translateOutput.setText(translate(translateInput.getText().toString()));
+                translateOutput.setText(translate(translateInput.getText().toString(), translateNumber));
                 translateOutput.setVisibility(View.VISIBLE);
 
             }
@@ -33,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private String translate(String userInput) {
-        return userInput;
+    private String translate(String userInput, int userNumber) {
+        return userInput + userNumber;
     }
 
 }
