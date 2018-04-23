@@ -1,5 +1,6 @@
 package edu.illinois.cs.cs125.final_project;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -70,6 +71,15 @@ public class MainActivity extends AppCompatActivity {
                 translateOutput.setVisibility(View.VISIBLE);
                 percentCorrect.setVisibility(View.VISIBLE);
 
+            }
+        });
+
+        final Button grapher = (Button)findViewById(R.id.graph);
+
+        grapher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AccuracyGrapher.class));
             }
         });
 
