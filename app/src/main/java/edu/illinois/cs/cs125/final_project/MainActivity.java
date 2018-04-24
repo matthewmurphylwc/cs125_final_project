@@ -48,10 +48,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    private static RequestQueue requestQueue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        requestQueue = Volley.newRequestQueue(this);
 
         final Button openFile = findViewById(R.id.Update_Button);
         openFile.setOnClickListener(new View.OnClickListener() {
@@ -74,10 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-    /**
-     * IDK man
-     */
+    /*
     public void startAPICall() {
         try {
             final JSONObject jsonBody = new JSONObject("{\"INPUT\":\"hello world\"}");
@@ -107,9 +108,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
-
+    */
 
     /**
      * Base function for doing translations.
@@ -125,8 +124,16 @@ public class MainActivity extends AppCompatActivity {
         if (userNumber > 50) {
             userNumber = 50;
         }
-
-        return userInput + userNumber;
+        try {
+            Tasks.text = userInput;
+            new Tasks.TranslateTask(MainActivity.this, requestQueue).execute(userInput);
+            String translatedText = Tasks.translated;
+            return translatedText + userNumber;
+        } catch(Exception e) {
+            Log.d(TAG, e.toString());
+            String translatedText = "Failed to Translate";
+            return translatedText + userNumber;
+        }
     }
 
     /**
@@ -157,8 +164,8 @@ public class MainActivity extends AppCompatActivity {
         int countCorrect = 0;
         //Loop that actually compares the two character arrays.
         for (int i = 0; i < fixedUser.length; i++) {
-            Log.d(TAG, "User " + fixedUser[i]);
-            Log.d(TAG, "Translated " + fixedTranslated[i]);
+            //Log.d(TAG, "User " + fixedUser[i]);
+            //Log.d(TAG, "Translated " + fixedTranslated[i]);
             if (fixedUser[i] == fixedTranslated[i]) {
                 countCorrect++;
             }
