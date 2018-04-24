@@ -67,7 +67,13 @@ public class MainActivity extends AppCompatActivity {
                 EditText translateInput = (EditText) findViewById(R.id.Translate_Input);
                 EditText numberInput = (EditText) findViewById(R.id.Translation_Number);
                 String stringNumber = numberInput.getText().toString();
-                int translateNumber = Integer.parseInt(stringNumber);
+                int translateNumber = 1;
+                try {
+                    translateNumber = Integer.parseInt(stringNumber);
+                } catch (Exception e) {
+
+                }
+                Log.d(TAG, stringNumber);
                 TextView translateOutput = findViewById(R.id.Translate_Output);
                 TextView percentCorrect = findViewById(R.id.Percent_Correct);
                 translateOutput.setText(translate(translateInput.getText().toString(), translateNumber));
@@ -181,7 +187,11 @@ public class MainActivity extends AppCompatActivity {
             //Log.d(TAG, "User " + fixedUser[i]);
             //Log.d(TAG, "Translated " + fixedTranslated[i]);
             if (fixedUser[i] == fixedTranslated[i]) {
-                countCorrect++;
+                if (fixedUser[i] == ' ') {
+                    continue;
+                } else {
+                    countCorrect++;
+                }
             }
         }
         //Computing the percent and making it look nice.
