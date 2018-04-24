@@ -1,5 +1,6 @@
 package edu.illinois.cs.cs125.final_project;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import java.text.DecimalFormat;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import javax.net.ssl.HttpsURLConnection;
 
 import android.graphics.PorterDuff;
@@ -62,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(final View v) {
                 Log.d(TAG, "Update button clicked");
-                EditText translateInput = (EditText)findViewById(R.id.Translate_Input);
-                EditText numberInput = (EditText)findViewById(R.id.Translation_Number);
+                EditText translateInput = (EditText) findViewById(R.id.Translate_Input);
+                EditText numberInput = (EditText) findViewById(R.id.Translation_Number);
                 String stringNumber = numberInput.getText().toString();
                 int translateNumber = Integer.parseInt(stringNumber);
                 TextView translateOutput = findViewById(R.id.Translate_Output);
@@ -73,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
                 translateOutput.setVisibility(View.VISIBLE);
                 percentCorrect.setVisibility(View.VISIBLE);
 
+            }
+        });
+
+        final Button grapher = (Button)findViewById(R.id.graph);
+
+        grapher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AccuracyGrapher.class));
             }
         });
 
@@ -108,11 +119,13 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    */
+     */
+
 
     /**
      * Base function for doing translations.
-     * @param userInput Whatever the user types in.
+     *
+     * @param userInput  Whatever the user types in.
      * @param userNumber How many translations the user wants to iterate through (should be limited)
      * @return The string, in English, after it has been translated through a series of languages.
      */
@@ -139,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Function that takes as input the user's input and the output of the translate function and
      * determines how similar the input and output are, then rounds to 2 decimal places.
-     * @param userInput The input the user enters into the app.
+     *
+     * @param userInput       The input the user enters into the app.
      * @param translateOutput The output of the translate function
      * @return A string of the percentage match of the two inputs.
      */
@@ -147,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
         //Set up for calculating percent correct
         char[] userChars = userInput.toCharArray();
         char[] translatedChars = translateOutput.toCharArray();
-        char[] fixedUser = new char [Math.max(userChars.length, translatedChars.length)];
-        char[] fixedTranslated = new char [Math.max(userChars.length, translatedChars.length)];
+        char[] fixedUser = new char[Math.max(userChars.length, translatedChars.length)];
+        char[] fixedTranslated = new char[Math.max(userChars.length, translatedChars.length)];
         for (int i = 0; i < fixedUser.length; i++) {
             if (i < userChars.length) {
                 fixedUser[i] = userChars[i];
@@ -171,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         //Computing the percent and making it look nice.
-        double percentCorrect = (double)countCorrect / fixedUser.length * 100;
+        double percentCorrect = (double) countCorrect / fixedUser.length * 100;
         DecimalFormat percent = new DecimalFormat("###.##");
         return percent.format(percentCorrect) + "% Match";
     }
