@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
      * @param translateOutput The output of the translate function
      * @return A string of the percentage match of the two inputs.
      */
-    private String percentCorrect(String userInput, String translateOutput) {
+    public String percentCorrect(String userInput, String translateOutput) {
         //Set up for calculating percent correct
         char[] userChars = userInput.toCharArray();
         char[] translatedChars = translateOutput.toCharArray();
@@ -199,5 +199,4 @@ public class MainActivity extends AppCompatActivity {
         DecimalFormat percent = new DecimalFormat("###.##");
         return percent.format(percentCorrect) + "% Match";
     }
-
 }
