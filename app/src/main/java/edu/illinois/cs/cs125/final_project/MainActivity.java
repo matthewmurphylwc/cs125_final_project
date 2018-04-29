@@ -8,45 +8,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 
-import java.io.*;
-import java.net.*;
 import java.util.*;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import android.graphics.PorterDuff;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -106,10 +74,10 @@ public class MainActivity extends AppCompatActivity {
         TextView translateOutput = findViewById(R.id.Translate_Output);
         TextView percentCorrect = findViewById(R.id.Percent_Correct);
         translateOutput.setText(output);
-        DecimalFormat percent = new DecimalFormat("###.##");
-        percentCorrect.setText(percent.format(percentCorrect(translateInput.getText().toString(), output)) + "% Match");
+        //DecimalFormat percent = new DecimalFormat("###.##");
+        //percentCorrect.setText(percent.format(percentCorrect(translateInput.getText().toString(), output)) + "% Match");
         translateOutput.setVisibility(View.VISIBLE);
-        percentCorrect.setVisibility(View.VISIBLE);
+        //percentCorrect.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -159,7 +127,9 @@ public class MainActivity extends AppCompatActivity {
         DecimalFormat percent = new DecimalFormat("###.##");
         percents[percentsIndex] = percentCorrect;
         Log.d(TAG, Arrays.toString(percents));
-        percentsIndex++;
+        if (percentsIndex < 10) {
+            percentsIndex++;
+        }
         return percentCorrect;
     }
 }

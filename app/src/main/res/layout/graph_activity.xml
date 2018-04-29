@@ -9,18 +9,11 @@
         android:layout_height="510dp"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Start of Scrollview" />
-
 
 
         <com.github.mikephil.charting.charts.BarChart
             android:layout_width="match_parent"
-            android:layout_height="480dp"
+            android:layout_height="510dp"
             android:id="@+id/bars">
         </com.github.mikephil.charting.charts.BarChart>
 

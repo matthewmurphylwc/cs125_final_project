@@ -28,11 +28,11 @@ public class AccuracyGrapher extends AppCompatActivity {
         ArrayList<BarEntry> yVals = new ArrayList<>();
 
         for (int i = 0; i < MAX_TRANS; i++) {
-            float value = (float) (Math.random() * 100);
+            float value = (float) MainActivity.percents[i];
             yVals.add(new BarEntry(i, (int) value));
         }
 
-        BarDataSet set = new BarDataSet(yVals, "Data Set");
+        BarDataSet set = new BarDataSet(yVals, "Language Accuracy");
         set.setColors(ColorTemplate.MATERIAL_COLORS);
         set.setDrawValues(true);
 

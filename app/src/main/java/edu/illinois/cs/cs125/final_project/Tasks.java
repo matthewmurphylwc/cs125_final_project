@@ -1,12 +1,11 @@
 package edu.illinois.cs.cs125.final_project;
 
 import android.net.Uri;
-import android.nfc.Tag;
+
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.NetworkResponse;
@@ -16,19 +15,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
-import java.net.URL;
-import java.net.URLEncoder;
-
-
-import java.io.*;
 import java.net.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import javax.net.ssl.HttpsURLConnection;
 
 public class Tasks {
 
