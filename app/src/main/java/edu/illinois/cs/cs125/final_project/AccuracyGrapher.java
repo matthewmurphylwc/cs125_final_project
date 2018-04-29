@@ -25,10 +25,6 @@ public class AccuracyGrapher extends AppCompatActivity {
         mChart = findViewById(R.id.bars);
         mChart.getDescription().setEnabled(false);
 
-
-        //mChart.setFitBars(true);
-
-
         ArrayList<BarEntry> yVals = new ArrayList<>();
 
         for (int i = 0; i < MAX_TRANS; i++) {
@@ -47,31 +43,5 @@ public class AccuracyGrapher extends AppCompatActivity {
         mChart.animateY(500);
 
         mChart.setFitBars(true);
-
-        //setData(10);
     }
-
-    /*
-
-    private void setData(int count) {
-        ArrayList<BarEntry> yVals = new ArrayList<>();
-
-        for (int i = 0; i < count; i++) {
-            float value = (float) (Math.random() * 100);
-            yVals.add(new BarEntry(i, (int) value));
-        }
-
-        BarDataSet set = new BarDataSet(yVals, "Data Set");
-        set.setColors(ColorTemplate.MATERIAL_COLORS);
-        set.setDrawValues(true);
-
-        BarData data = new BarData();
-
-        mChart.setData(data);
-        mChart.invalidate();
-        mChart.animateY(500);
-    }
-
-    */
-
 }
