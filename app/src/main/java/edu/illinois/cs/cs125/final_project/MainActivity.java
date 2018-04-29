@@ -17,6 +17,8 @@ import java.text.DecimalFormat;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -36,6 +38,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,7 +53,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    public static int translateNumber = 1;
+
     private static RequestQueue requestQueue;
+
+    public static double[] percents = new double[10];
+
+    public static int percentsIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,22 +74,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(final View v) {
                 Log.d(TAG, "Update button clicked");
                 EditText translateInput = (EditText) findViewById(R.id.Translate_Input);
+                Tasks.text = translateInput.getText().toString();
                 EditText numberInput = (EditText) findViewById(R.id.Translation_Number);
                 String stringNumber = numberInput.getText().toString();
-                int translateNumber = 1;
+                Log.d(TAG, stringNumber);
                 try {
                     translateNumber = Integer.parseInt(stringNumber);
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
-                Log.d(TAG, stringNumber);
-                TextView translateOutput = findViewById(R.id.Translate_Output);
-                TextView percentCorrect = findViewById(R.id.Percent_Correct);
-                translateOutput.setText(translate(translateInput.getText().toString(), translateNumber));
-                percentCorrect.setText(percentCorrect(translateInput.getText().toString(), translate(translateInput.getText().toString(), translateNumber)));
-                translateOutput.setVisibility(View.VISIBLE);
-                percentCorrect.setVisibility(View.VISIBLE);
-
+                new Tasks.TranslateTask(MainActivity.this, requestQueue).execute();
+                setText();
             }
         });
 
@@ -95,64 +99,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    /*
-    public void startAPICall() {
-        try {
-            final JSONObject jsonBody = new JSONObject("{\"INPUT\":\"hello world\"}");
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.POST,
-                    " HTTP://API.SHOUTCLOUD.IO/V1/SHOUT",
-                    jsonBody,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(final JSONObject response) {
-                            Log.d(TAG, response.toString());
-                            TextView jsonView = findViewById(R.id.jsonResult);
-                            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                            String jsonString = gson.toJson(response);
-                            jsonView.setText(jsonString);
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(final VolleyError error) {
-                    Log.w(TAG, error.toString());
-                    Toast.makeText(getApplicationContext(), "Problem accessing API",
-                            Toast.LENGTH_LONG).show();
-                }
-            });
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-     */
 
-
-    /**
-     * Base function for doing translations.
-     *
-     * @param userInput  Whatever the user types in.
-     * @param userNumber How many translations the user wants to iterate through (should be limited)
-     * @return The string, in English, after it has been translated through a series of languages.
-     */
-    private String translate(String userInput, int userNumber) {
-        /*Not sure if 50 is the right number but we should have a cap on the number of translations
-        the user can iterate through in one attempt both so we don't burn our API key's limit and so
-        the app doesn't take years to respond to a request.
-        */
-        if (userNumber > 50) {
-            userNumber = 50;
-        }
-        try {
-            Tasks.text = userInput;
-            new Tasks.TranslateTask(MainActivity.this, requestQueue).execute(userInput);
-            String translatedText = Tasks.translated;
-            return translatedText + userNumber;
-        } catch(Exception e) {
-            Log.d(TAG, e.toString());
-            String translatedText = "Failed to Translate";
-            return translatedText + userNumber;
-        }
+    public  void setText() {
+        EditText translateInput = (EditText) findViewById(R.id.Translate_Input);
+        String output = Tasks.finalOutput;
+        TextView translateOutput = findViewById(R.id.Translate_Output);
+        TextView percentCorrect = findViewById(R.id.Percent_Correct);
+        translateOutput.setText(output);
+        DecimalFormat percent = new DecimalFormat("###.##");
+        percentCorrect.setText(percent.format(percentCorrect(translateInput.getText().toString(), output)) + "% Match");
+        translateOutput.setVisibility(View.VISIBLE);
+        percentCorrect.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -163,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
      * @param translateOutput The output of the translate function
      * @return A string of the percentage match of the two inputs.
      */
-    private String percentCorrect(String userInput, String translateOutput) {
+    public double percentCorrect(String userInput, String translateOutput) {
         //Set up for calculating percent correct
         char[] userChars = userInput.toCharArray();
         char[] translatedChars = translateOutput.toCharArray();
@@ -187,17 +144,23 @@ public class MainActivity extends AppCompatActivity {
             //Log.d(TAG, "User " + fixedUser[i]);
             //Log.d(TAG, "Translated " + fixedTranslated[i]);
             if (fixedUser[i] == fixedTranslated[i]) {
+                /*
                 if (fixedUser[i] == ' ') {
                     continue;
                 } else {
                     countCorrect++;
                 }
+                */
+                countCorrect++;
             }
         }
         //Computing the percent and making it look nice.
         double percentCorrect = (double) countCorrect / fixedUser.length * 100;
         DecimalFormat percent = new DecimalFormat("###.##");
-        return percent.format(percentCorrect) + "% Match";
+        percents[percentsIndex] = percentCorrect;
+        Log.d(TAG, Arrays.toString(percents));
+        percentsIndex++;
+        return percentCorrect;
     }
 
 }
