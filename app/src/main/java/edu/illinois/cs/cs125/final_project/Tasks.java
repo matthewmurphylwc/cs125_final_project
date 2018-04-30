@@ -6,7 +6,9 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -49,9 +51,21 @@ public class Tasks {
         }
 
         @Override
+        protected void onPreExecute() {
+            /*
+            MainActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) {
+                return;
+            }
+            ProgressBar progressBar = activity.findViewById(R.id.progressBar);
+            progressBar.setVisibility(View.VISIBLE);
+            */
+        }
+
+        @Override
         protected Integer doInBackground(final String... userInput) {
-            if (MainActivity.translateNumber > 50) {
-                MainActivity.translateNumber = 50;
+            if (MainActivity.translateNumber > 10) {
+                MainActivity.translateNumber = 10;
             }
             String[] languages = new String[]{"af", "ar", "bn", "bs", "bg", "yue", "ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl", "et", "fj", "fil", "fi", "fr", "de", "el", "ht",
                     "he", "hi", "mww", "hu", "id", "it", "ja", "sw", "ko", "lv", "lt", "mg", "ms", "mt", "nb", "fa", "pl", "pt", "otq", "ro", "ru", "sm", "sr-Cryl", "sr-Latn",
@@ -97,6 +111,11 @@ public class Tasks {
                                 // On failure just clear the progress bar
                                 Log.w(TAG, "Error: " + error.toString());
                                 NetworkResponse networkResponse = error.networkResponse;
+                                Toast.makeText(activity.getApplicationContext(),
+                                        "API connection failed please retry",
+                                        Toast.LENGTH_LONG).show();
+                                ProgressBar progressBar = activity.findViewById(R.id.progressBar);
+                                progressBar.setVisibility(View.INVISIBLE);
                                 if (networkResponse != null &&
                                         networkResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                                     Log.w(TAG, "Unauthorized request. "
@@ -172,6 +191,11 @@ public class Tasks {
                         public void onErrorResponse(final VolleyError error) {
                             // On failure just clear the progress bar
                             Log.w(TAG, "Error: " + error.toString());
+                            Toast.makeText(activity.getApplicationContext(),
+                                    "API connection failed please retry",
+                                    Toast.LENGTH_LONG).show();
+                            ProgressBar progressBar = activity.findViewById(R.id.progressBar);
+                            progressBar.setVisibility(View.INVISIBLE);
                             NetworkResponse networkResponse = error.networkResponse;
                             if (networkResponse != null &&
                                     networkResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
@@ -223,6 +247,8 @@ public class Tasks {
                 if (activity == null || activity.isFinishing()) {
                     return;
                 }
+                ProgressBar progressBar = activity.findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.INVISIBLE);
                 TextView translateOutput = activity.findViewById(R.id.Translate_Output);
                 translateOutput.setText(finalOutput);
                 translateOutput.setVisibility(View.VISIBLE);

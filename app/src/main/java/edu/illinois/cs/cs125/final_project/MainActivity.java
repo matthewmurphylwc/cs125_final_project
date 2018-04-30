@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 new Tasks.TranslateTask(MainActivity.this, requestQueue).execute();
                 setText();
+                ProgressBar progressBar = findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.VISIBLE);
             }
         });
 
@@ -127,8 +130,10 @@ public class MainActivity extends AppCompatActivity {
         DecimalFormat percent = new DecimalFormat("###.##");
         percents[percentsIndex] = percentCorrect;
         Log.d(TAG, Arrays.toString(percents));
-        if (percentsIndex < 10) {
+        if (percentsIndex < 9) {
             percentsIndex++;
+        } else {
+            percentsIndex = 0;
         }
         return percentCorrect;
     }
