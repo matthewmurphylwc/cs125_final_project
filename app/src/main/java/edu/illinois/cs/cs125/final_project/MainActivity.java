@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static int percentsIndex = 0;
 
+    public static boolean isConnected = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,21 +44,27 @@ public class MainActivity extends AppCompatActivity {
         openFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                Log.d(TAG, "Update button clicked");
-                EditText translateInput = (EditText) findViewById(R.id.Translate_Input);
-                Tasks.text = translateInput.getText().toString();
-                EditText numberInput = (EditText) findViewById(R.id.Translation_Number);
-                String stringNumber = numberInput.getText().toString();
-                Log.d(TAG, stringNumber);
-                try {
-                    translateNumber = Integer.parseInt(stringNumber);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (!isConnected) {
+                    Log.d(TAG, "Update button clicked");
+                    EditText translateInput = (EditText) findViewById(R.id.Translate_Input);
+                    Tasks.text = translateInput.getText().toString();
+                    EditText numberInput = (EditText) findViewById(R.id.Translation_Number);
+                    String stringNumber = numberInput.getText().toString();
+                    Log.d(TAG, stringNumber);
+                    try {
+                        translateNumber = Integer.parseInt(stringNumber);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    new Tasks.TranslateTask(MainActivity.this, requestQueue).execute();
+                    setText();
+                    ProgressBar progressBar = findViewById(R.id.progressBar);
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Please wait for the previous translation to complete",
+                            Toast.LENGTH_SHORT).show();
                 }
-                new Tasks.TranslateTask(MainActivity.this, requestQueue).execute();
-                setText();
-                ProgressBar progressBar = findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.VISIBLE);
             }
         });
 

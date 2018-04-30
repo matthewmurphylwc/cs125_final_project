@@ -38,6 +38,8 @@ public class Tasks {
     static String translated = "";
     static String finalOutput = "";
 
+    static boolean connectionFailed = false;
+
     static class TranslateTask extends AsyncTask<String, Integer, Integer> {
 
         private WeakReference<MainActivity> activityReference;
@@ -60,6 +62,7 @@ public class Tasks {
             ProgressBar progressBar = activity.findViewById(R.id.progressBar);
             progressBar.setVisibility(View.VISIBLE);
             */
+            MainActivity.isConnected = true;
         }
 
         @Override
@@ -73,12 +76,100 @@ public class Tasks {
                     "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl", "et", "fj", "fil", "fi", "fr", "de", "el", "ht", "sk", "sl", "es", "sv", "ty", "ta", "th",
                     "to", "tr", "uk", "ur", "vi", "cy", "yua", "af", "ar", "bn", "bs", "bg", "yue"};
             for (int i = 0; i < MainActivity.translateNumber; i++) {
-                double random = Math.random() * 100;
-                int languageSelector = (int) random;
-                Log.d(TAG, "Random number was: " + Integer.toString(languageSelector));
-                target = languages[languageSelector];
-                try {
-                    Log.d("Tasks", "Calling in loop");
+                if (connectionFailed) {
+                    break;
+                } else {
+                    double random = Math.random() * 100;
+                    int languageSelector = (int) random;
+                    Log.d(TAG, "Random number was: " + Integer.toString(languageSelector));
+                    target = languages[languageSelector];
+                    try {
+                        Log.d("Tasks", "Calling in loop");
+                        try {
+                            final MainActivity activity = activityReference.get();
+                            if (activity == null || activity.isFinishing()) {
+                                return 0;
+                            }
+                            String params = "?to=" + target + "&text=" + text;
+                            String requestURL = Uri.parse(host + path + params).buildUpon().appendQueryParameter("Ocp-Apim-Subscription-Key", subscriptionKey).build().toString();
+                            Log.d(TAG, "Using url: " + requestURL);
+                            StringRequest stringRequest = new StringRequest(
+                                    Request.Method.GET, requestURL,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(final String response) {
+                                            // On success, clear the progress bar and call finishProcessImage
+                                            Log.d(TAG, "Response: " + response);
+                                            MainActivity activity = activityReference.get();
+                                            if (activity == null || activity.isFinishing()) {
+                                                return;
+                                            }
+                                            translated = response;
+                                            String translatedText = Tasks.translated;
+                                            String noXMLTranslation = translatedText.substring(translatedText.indexOf('>') + 1, translatedText.lastIndexOf('<'));
+                                            Log.d(TAG, "No XML: " + noXMLTranslation);
+                                            Tasks.text = noXMLTranslation;
+                                            Tasks.finalOutput = noXMLTranslation;
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(final VolleyError error) {
+                                    // On failure just clear the progress bar
+                                    Log.w(TAG, "Error: " + error.toString());
+                                    NetworkResponse networkResponse = error.networkResponse;
+                                    Toast.makeText(activity.getApplicationContext(),
+                                            "API connection failed please retry",
+                                            Toast.LENGTH_LONG).show();
+                                    ProgressBar progressBar = activity.findViewById(R.id.progressBar);
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    if (networkResponse != null &&
+                                            networkResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                                        Log.w(TAG, "Unauthorized request. "
+                                                + "Make sure you added your API_KEY to app/secrets.properties");
+                                    }
+                                    MainActivity activity = activityReference.get();
+                                    if (activity == null || activity.isFinishing()) {
+                                        return;
+                                    }
+                                    connectionFailed = true;
+                                }
+                            }) {
+                                @Override
+                                public Map<String, String> getHeaders() {
+                                    // Set up headers properly
+                                    Map<String, String> headers = new HashMap<>();
+                                    headers.put("Content-Type", "application/octet-stream");
+                                    headers.put("Ocp-Apim-Subscription-Key", subscriptionKey);
+                                    return headers;
+                                }
+
+                                @Override
+                                public String getBodyContentType() {
+                                    // Set the body content type properly for a binary upload
+                                    return "application/octet-stream";
+                                }
+                            };
+                            requestQueue.add(stringRequest);
+                            Thread.sleep(3000);
+                        } catch (Exception e) {
+
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, e.toString());
+                        String translatedText = "Failed to Translate";
+                        //break;
+                    }
+                    Log.d(TAG, "At this point the translation is: " + Tasks.finalOutput);
+                    //}
+                    Log.d(TAG, "This should only print once");
+                }
+            }
+            try {
+                if (connectionFailed) {
+                    return 0;
+                } else {
+                    target = "en";
+                    Log.d("Tasks", "Calling English correctly");
                     try {
                         final MainActivity activity = activityReference.get();
                         if (activity == null || activity.isFinishing()) {
@@ -110,12 +201,12 @@ public class Tasks {
                             public void onErrorResponse(final VolleyError error) {
                                 // On failure just clear the progress bar
                                 Log.w(TAG, "Error: " + error.toString());
-                                NetworkResponse networkResponse = error.networkResponse;
                                 Toast.makeText(activity.getApplicationContext(),
                                         "API connection failed please retry",
                                         Toast.LENGTH_LONG).show();
                                 ProgressBar progressBar = activity.findViewById(R.id.progressBar);
                                 progressBar.setVisibility(View.INVISIBLE);
+                                NetworkResponse networkResponse = error.networkResponse;
                                 if (networkResponse != null &&
                                         networkResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                                     Log.w(TAG, "Unauthorized request. "
@@ -147,86 +238,6 @@ public class Tasks {
                     } catch (Exception e) {
 
                     }
-                } catch (Exception e) {
-                    Log.d(TAG, e.toString());
-                    String translatedText = "Failed to Translate";
-                    //break;
-                }
-                Log.d(TAG, "At this point the translation is: " + Tasks.finalOutput);
-                //}
-                Log.d(TAG, "This should only print once");
-
-            }
-            try {
-                target = "en";
-                Log.d("Tasks", "Calling English correctly");
-                try {
-                    final MainActivity activity = activityReference.get();
-                    if (activity == null || activity.isFinishing()) {
-                        return 0;
-                    }
-                    String params = "?to=" + target + "&text=" + text;
-                    String requestURL = Uri.parse(host + path + params).buildUpon().appendQueryParameter("Ocp-Apim-Subscription-Key", subscriptionKey).build().toString();
-                    Log.d(TAG, "Using url: " + requestURL);
-                    StringRequest stringRequest = new StringRequest(
-                            Request.Method.GET, requestURL,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(final String response) {
-                                    // On success, clear the progress bar and call finishProcessImage
-                                    Log.d(TAG, "Response: " + response);
-                                    MainActivity activity = activityReference.get();
-                                    if (activity == null || activity.isFinishing()) {
-                                        return;
-                                    }
-                                    translated = response;
-                                    String translatedText = Tasks.translated;
-                                    String noXMLTranslation = translatedText.substring(translatedText.indexOf('>') + 1, translatedText.lastIndexOf('<'));
-                                    Log.d(TAG, "No XML: " + noXMLTranslation);
-                                    Tasks.text = noXMLTranslation;
-                                    Tasks.finalOutput = noXMLTranslation;
-                                }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(final VolleyError error) {
-                            // On failure just clear the progress bar
-                            Log.w(TAG, "Error: " + error.toString());
-                            Toast.makeText(activity.getApplicationContext(),
-                                    "API connection failed please retry",
-                                    Toast.LENGTH_LONG).show();
-                            ProgressBar progressBar = activity.findViewById(R.id.progressBar);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            NetworkResponse networkResponse = error.networkResponse;
-                            if (networkResponse != null &&
-                                    networkResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                                Log.w(TAG, "Unauthorized request. "
-                                        + "Make sure you added your API_KEY to app/secrets.properties");
-                            }
-                            MainActivity activity = activityReference.get();
-                            if (activity == null || activity.isFinishing()) {
-                                return;
-                            }
-                        }
-                    }) {
-                        @Override
-                        public Map<String, String> getHeaders() {
-                            // Set up headers properly
-                            Map<String, String> headers = new HashMap<>();
-                            headers.put("Content-Type", "application/octet-stream");
-                            headers.put("Ocp-Apim-Subscription-Key", subscriptionKey);
-                            return headers;
-                        }
-
-                        @Override
-                        public String getBodyContentType() {
-                            // Set the body content type properly for a binary upload
-                            return "application/octet-stream";
-                        }
-                    };
-                    requestQueue.add(stringRequest);
-                    Thread.sleep(3000);
-                } catch (Exception e) {
-
                 }
             } catch (Exception e) {
                 Log.d(TAG, e.toString());
@@ -258,6 +269,7 @@ public class Tasks {
                 DecimalFormat percent = new DecimalFormat("###.##");
                 percentCorrect.setText(percent.format(activity.percentCorrect(translateInput.getText().toString(), finalOutput)) + "% Match");
                 percentCorrect.setVisibility(View.VISIBLE);
+                MainActivity.isConnected = false;
             }
 
     }
